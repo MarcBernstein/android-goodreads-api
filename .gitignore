@@ -1,3 +1,6 @@
+/libs/src/android-support-v4.symlink/*
+/libs/src/signpost/*
+
 # built application files
 *.apk
 *.ap_
