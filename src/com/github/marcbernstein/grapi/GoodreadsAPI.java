@@ -122,27 +122,6 @@ public class GoodreadsAPI {
 		new RetrieveRequestTokenTask(callback).execute();
 	}
 
-	/**
-	 * Get id of user who authorized OAuth.
-	 * 
-	 * @return
-	 */
-	public AuthUser getAuthUserInfo() {
-		AuthUser ret = null;
-
-		try {
-			String output = request("auth_user");
-
-			Serializer serializer = new Persister();
-
-			ret = serializer.read(AuthUser.class, output);
-		} catch (Exception e) {
-			Log.e(TAG, "Exception", e);
-		}
-
-		return ret;
-	}
-
 	private String request(String service) throws Exception {
 		String output = null;
 
@@ -305,5 +284,56 @@ public class GoodreadsAPI {
 
 	private SharedPreferences getSharedPrefs() {
 		return mActivity.getSharedPreferences(SHARED_PREF_FILENAME, Activity.MODE_PRIVATE);
+	}
+
+	/**
+	 * Get id of user who authorized OAuth.
+	 * 
+	 * @return
+	 */
+	public AuthUser getAuthUserInfo() {
+		AuthUser ret = null;
+
+		try {
+			String output = request("auth_user");
+
+			Serializer serializer = new Persister();
+
+			ret = serializer.read(AuthUser.class, output);
+		} catch (Exception e) {
+			Log.e(TAG, "Exception", e);
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Get a paginated list of an authors books.
+	 * 
+	 * @return
+	 */
+	public AuthUser getAuthorBooks(String authorId) {
+		return getAuthorBooks(authorId, 0);
+	}
+
+	/**
+	 * Get a paginated list of an authors books.
+	 * 
+	 * @return
+	 */
+	public AuthUser getAuthorBooks(String authorId, int page) {
+		AuthUser ret = null;
+
+		try {
+			String output = request("auth_user");
+
+			Serializer serializer = new Persister();
+
+			ret = serializer.read(AuthUser.class, output);
+		} catch (Exception e) {
+			Log.e(TAG, "Exception", e);
+		}
+
+		return ret;
 	}
 }
