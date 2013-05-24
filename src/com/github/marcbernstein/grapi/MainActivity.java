@@ -1,6 +1,7 @@
 package com.github.marcbernstein.grapi;
 
 import objects.AuthUser;
+import objects.AuthorResponse.Author;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,7 +56,8 @@ public class MainActivity extends Activity {
 	}
 
 	private void start() {
-		new FetchUserInfoTask().execute();
+		// new FetchUserInfoTask().execute();
+		new FetchAuthorInfoTask().execute();
 	}
 
 	public void handleLogin() {
@@ -75,6 +77,12 @@ public class MainActivity extends Activity {
 				showProgressBar(false);
 			}
 		});
+	}
+
+	private void showProgressBar(boolean show) {
+		if (mProgressBar != null) {
+			mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+		}
 	}
 
 	private class FetchUserInfoTask extends AsyncTask<Void, Void, AuthUser> {
@@ -100,9 +108,27 @@ public class MainActivity extends Activity {
 
 	}
 
-	private void showProgressBar(boolean show) {
-		if (mProgressBar != null) {
-			mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+	private class FetchAuthorInfoTask extends AsyncTask<Void, Void, Author> {
+
+		@Override
+		protected void onPreExecute() {
+			showProgressBar(true);
 		}
+
+		@Override
+		protected Author doInBackground(Void... params) {
+			return mGoodreadsApi.getAuthorInfo(18541);
+		}
+
+		@Override
+		protected void onPostExecute(Author author) {
+			showProgressBar(false);
+
+			if (author != null) {
+				mDebugTextView.setText(author.getName());
+			}
+		}
+
 	}
+
 }

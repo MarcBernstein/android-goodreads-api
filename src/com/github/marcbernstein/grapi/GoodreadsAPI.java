@@ -6,6 +6,8 @@ import java.io.InputStream;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import objects.AuthUser;
+import objects.AuthorResponse;
+import objects.AuthorResponse.Author;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +15,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
@@ -31,7 +35,7 @@ import com.github.marcbernstein.grapi.utils.UIUtils;
 
 public class GoodreadsAPI {
 
-	private static final String API_URL = "https://www.goodreads.com/api/";
+	private static final String API_URL = "https://www.goodreads.com/";
 
 	private static final String AUTHORIZATION_WEBSITE_URL = "http://www.goodreads.com/oauth/authorize?mobile=1";
 	private static final String ACCESS_TOKEN_ENPOINT_URL = "http://www.goodreads.com/oauth/access_token";
@@ -123,9 +127,17 @@ public class GoodreadsAPI {
 	}
 
 	private String request(String service) throws Exception {
+		return request(service, null);
+	}
+
+	private String request(String service, HttpParams params) throws Exception {
 		String output = null;
 
 		HttpGet get = new HttpGet(API_URL + service);
+		if (params != null) {
+			get.setParams(params);
+		}
+
 		mConsumer.sign(get);
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpResponse response = httpClient.execute(get);
@@ -295,7 +307,7 @@ public class GoodreadsAPI {
 		AuthUser ret = null;
 
 		try {
-			String output = request("auth_user");
+			String output = request("api/auth_user");
 
 			Serializer serializer = new Persister();
 
@@ -312,7 +324,7 @@ public class GoodreadsAPI {
 	 * 
 	 * @return
 	 */
-	public AuthUser getAuthorBooks(String authorId) {
+	public AuthorResponse getAuthorBooks(int authorId) {
 		return getAuthorBooks(authorId, 0);
 	}
 
@@ -321,15 +333,37 @@ public class GoodreadsAPI {
 	 * 
 	 * @return
 	 */
-	public AuthUser getAuthorBooks(String authorId, int page) {
-		AuthUser ret = null;
+	public AuthorResponse getAuthorBooks(int authorId, int page) {
+		AuthorResponse ret = null;
 
 		try {
-			String output = request("auth_user");
+			HttpParams params = new BasicHttpParams();
+			params.setIntParameter("page", page);
+
+			String output = request("author/list/" + authorId + ".xml", params);
 
 			Serializer serializer = new Persister();
 
-			ret = serializer.read(AuthUser.class, output);
+			ret = serializer.read(AuthorResponse.class, output);
+		} catch (Exception e) {
+			Log.e(TAG, "Exception", e);
+		}
+
+		return ret;
+	}
+
+	public Author getAuthorInfo(int authorId) {
+		Author ret = null;
+
+		try {
+			String output = request("author/show/" + authorId + ".xml");
+
+			Serializer serializer = new Persister();
+
+			AuthorResponse response = serializer.read(AuthorResponse.class, output);
+			if (response != null) {
+				ret = response.getAuthor();
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Exception", e);
 		}
