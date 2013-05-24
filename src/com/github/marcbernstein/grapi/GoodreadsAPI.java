@@ -31,8 +31,8 @@ import com.github.marcbernstein.grapi.auth.OAuthDialogFragment.AuthorizeListener
 import com.github.marcbernstein.grapi.utils.StringUtils;
 import com.github.marcbernstein.grapi.utils.UIUtils;
 import com.github.marcbernstein.grapi.xml.objects.AuthUser;
+import com.github.marcbernstein.grapi.xml.objects.Author;
 import com.github.marcbernstein.grapi.xml.responses.AuthorResponse;
-import com.github.marcbernstein.grapi.xml.responses.AuthorResponse.Author;
 
 public class GoodreadsAPI {
 

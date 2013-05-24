@@ -1,6 +1,5 @@
 package com.github.marcbernstein.grapi.xml.objects;
 
-
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 

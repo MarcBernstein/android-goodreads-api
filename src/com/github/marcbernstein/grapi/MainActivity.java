@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.github.marcbernstein.grapi.GoodreadsAPI.ApiEventListener;
 import com.github.marcbernstein.grapi.GoodreadsAPI.OAuthLoginCallback;
 import com.github.marcbernstein.grapi.xml.objects.AuthUser;
-import com.github.marcbernstein.grapi.xml.responses.AuthorResponse.Author;
+import com.github.marcbernstein.grapi.xml.objects.Author;
 import com.marcbernstein.goodreadsapi.R;
 
 public class MainActivity extends Activity {
