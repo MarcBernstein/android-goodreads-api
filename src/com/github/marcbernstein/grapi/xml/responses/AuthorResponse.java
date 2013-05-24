@@ -1,4 +1,4 @@
-package objects;
+package com.github.marcbernstein.grapi.xml.responses;
 
 import java.util.ArrayList;
 import java.util.Collections;

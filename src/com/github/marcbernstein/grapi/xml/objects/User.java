@@ -1,4 +1,4 @@
-package objects;
+package com.github.marcbernstein.grapi.xml.objects;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;

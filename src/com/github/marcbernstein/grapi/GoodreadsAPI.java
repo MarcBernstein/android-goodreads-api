@@ -5,9 +5,6 @@ import java.io.InputStream;
 
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
-import objects.AuthUser;
-import objects.AuthorResponse;
-import objects.AuthorResponse.Author;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,9 +26,13 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.github.marcbernstein.grapi.OAuthDialogFragment.AuthorizeListener;
+import com.github.marcbernstein.grapi.auth.OAuthDialogFragment;
+import com.github.marcbernstein.grapi.auth.OAuthDialogFragment.AuthorizeListener;
 import com.github.marcbernstein.grapi.utils.StringUtils;
 import com.github.marcbernstein.grapi.utils.UIUtils;
+import com.github.marcbernstein.grapi.xml.objects.AuthUser;
+import com.github.marcbernstein.grapi.xml.responses.AuthorResponse;
+import com.github.marcbernstein.grapi.xml.responses.AuthorResponse.Author;
 
 public class GoodreadsAPI {
 

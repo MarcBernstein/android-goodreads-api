@@ -1,4 +1,4 @@
-package com.github.marcbernstein.grapi;
+package com.github.marcbernstein.grapi.auth;
 
 import oauth.signpost.OAuth;
 import android.app.DialogFragment;
