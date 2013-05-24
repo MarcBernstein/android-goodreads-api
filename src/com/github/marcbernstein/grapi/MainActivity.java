@@ -98,11 +98,11 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(AuthUser result) {
+		protected void onPostExecute(AuthUser authUser) {
 			showProgressBar(false);
 
-			if (result != null) {
-				mDebugTextView.setText("User Name: " + result.getUserName());
+			if (authUser != null) {
+				mDebugTextView.setText("User Name: " + authUser.getName());
 			}
 		}
 
@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
 			showProgressBar(false);
 
 			if (author != null) {
-				mDebugTextView.setText(author.getName());
+				mDebugTextView.setText("Author name: " + author.getName());
 			}
 		}
 

@@ -32,6 +32,7 @@ import com.github.marcbernstein.grapi.utils.StringUtils;
 import com.github.marcbernstein.grapi.utils.UIUtils;
 import com.github.marcbernstein.grapi.xml.objects.AuthUser;
 import com.github.marcbernstein.grapi.xml.objects.Author;
+import com.github.marcbernstein.grapi.xml.responses.AuthUserResponse;
 import com.github.marcbernstein.grapi.xml.responses.AuthorResponse;
 
 public class GoodreadsAPI {
@@ -312,7 +313,10 @@ public class GoodreadsAPI {
 
 			Serializer serializer = new Persister();
 
-			ret = serializer.read(AuthUser.class, output);
+			AuthUserResponse response = serializer.read(AuthUserResponse.class, output);
+			if (response != null) {
+				ret = response.getAuthUser();
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Exception", e);
 		}

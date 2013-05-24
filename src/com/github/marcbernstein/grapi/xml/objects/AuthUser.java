@@ -1,23 +1,30 @@
 package com.github.marcbernstein.grapi.xml.objects;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-@Root(name = "GoodreadsResponse", strict = false)
+@Root
 public class AuthUser {
 
+	@Attribute
+	private String id;
+
 	@Element
-	private User user;
+	private String name;
 
-	public String getUserId() {
-		return user == null ? null : user.getId();
+	@Element
+	private String link;
+
+	public String getId() {
+		return id;
 	}
 
-	public String getUserName() {
-		return user == null ? null : user.getName();
+	public String getName() {
+		return name;
 	}
 
-	public String getUserLink() {
-		return user == null ? null : user.getLink();
+	public String getLink() {
+		return link;
 	}
 }
