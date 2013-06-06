@@ -2,6 +2,10 @@ package com.github.marcbernstein.grapi;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
@@ -9,11 +13,12 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.message.BasicNameValuePair;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
@@ -36,6 +41,8 @@ import com.github.marcbernstein.grapi.xml.responses.AuthUserResponse;
 import com.github.marcbernstein.grapi.xml.responses.AuthorResponse;
 
 public class GoodreadsAPI {
+
+	private static final String KEY = "key";
 
 	private static final String API_URL = "https://www.goodreads.com/";
 
@@ -132,13 +139,36 @@ public class GoodreadsAPI {
 		return request(service, null);
 	}
 
-	private String request(String service, HttpParams params) throws Exception {
+	private String request(String service, Map<String, String> params) throws Exception {
 		String output = null;
 
-		HttpGet get = new HttpGet(API_URL + service);
-		if (params != null) {
-			get.setParams(params);
+		// Create the request URL
+		StringBuilder url = new StringBuilder(API_URL).append(service);
+
+		// Create the set of request parameters, starting with developer key
+		List<NameValuePair> requestParams = new ArrayList<NameValuePair>();
+		requestParams.add(new BasicNameValuePair(KEY, mOAuthDeveloperKey));
+
+		// If params have been passed in, add them to the request params now
+		if (params != null && !params.isEmpty()) {
+			for (Map.Entry<String, String> param : params.entrySet()) {
+				String key = param.getKey();
+				String value = param.getValue();
+				if (StringUtils.isNotEmpty(key) && value != null) {
+					requestParams.add(new BasicNameValuePair(key, value));
+				}
+			}
 		}
+
+		// Add the encoded params to the request URL
+		if (requestParams != null && !requestParams.isEmpty()) {
+			if (url.charAt(url.length() - 1) != '?') {
+				url.append('?');
+			}
+			url.append(URLEncodedUtils.format(requestParams, "UTF-8"));
+		}
+
+		HttpGet get = new HttpGet(url.toString());
 
 		mConsumer.sign(get);
 		HttpClient httpClient = new DefaultHttpClient();
@@ -158,7 +188,9 @@ public class GoodreadsAPI {
 			}
 		}
 
-		FileUtils.writeStringToFile(new File(Environment.getExternalStorageDirectory().getPath() + "/" + service), output,
+		// TODO Debug, REMOVEME
+		FileUtils.writeStringToFile(
+				new File(Environment.getExternalStorageDirectory().getPath() + "/" + service.replace('/', '_')), output,
 				"UTF-8");
 
 		return output;
@@ -342,8 +374,8 @@ public class GoodreadsAPI {
 		AuthorResponse ret = null;
 
 		try {
-			HttpParams params = new BasicHttpParams();
-			params.setIntParameter("page", page);
+			Map<String, String> params = new HashMap<String, String>(1);
+			params.put("page", Integer.toString(page));
 
 			String output = request("author/list/" + authorId + ".xml", params);
 
@@ -369,6 +401,25 @@ public class GoodreadsAPI {
 			if (response != null) {
 				ret = response.getAuthor();
 			}
+		} catch (Exception e) {
+			Log.e(TAG, "Exception", e);
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Returns the Goodreads ID of a given book identified by it's ISBN.
+	 * 
+	 * @param isbn
+	 *          The book identified by an ISBN
+	 * @return The Goodreads ID of the book
+	 */
+	public String getIsbnToId(String isbn) {
+		String ret = null;
+
+		try {
+			ret = request("book/isbn_to_id/" + isbn);
 		} catch (Exception e) {
 			Log.e(TAG, "Exception", e);
 		}

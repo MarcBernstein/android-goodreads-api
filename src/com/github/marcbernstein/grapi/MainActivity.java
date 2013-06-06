@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.github.marcbernstein.grapi.GoodreadsAPI.ApiEventListener;
 import com.github.marcbernstein.grapi.GoodreadsAPI.OAuthLoginCallback;
+import com.github.marcbernstein.grapi.utils.StringUtils;
 import com.github.marcbernstein.grapi.xml.objects.AuthUser;
 import com.github.marcbernstein.grapi.xml.objects.Author;
 import com.marcbernstein.goodreadsapi.R;
@@ -56,8 +57,9 @@ public class MainActivity extends Activity {
 	}
 
 	private void start() {
-		// new FetchUserInfoTask().execute();
+		new FetchUserInfoTask().execute();
 		new FetchAuthorInfoTask().execute();
+		new FetchIdTask().execute();
 	}
 
 	public void handleLogin() {
@@ -102,7 +104,7 @@ public class MainActivity extends Activity {
 			showProgressBar(false);
 
 			if (authUser != null) {
-				mDebugTextView.setText("User Name: " + authUser.getName());
+				appendDebugInfo("User Name: " + authUser.getName());
 			}
 		}
 
@@ -125,10 +127,35 @@ public class MainActivity extends Activity {
 			showProgressBar(false);
 
 			if (author != null) {
-				mDebugTextView.setText("Author name: " + author.getName());
+				appendDebugInfo("Author name: " + author.getName());
 			}
 		}
+	}
 
+	private class FetchIdTask extends AsyncTask<Void, Void, String> {
+
+		@Override
+		protected void onPreExecute() {
+			showProgressBar(true);
+		}
+
+		@Override
+		protected String doInBackground(Void... params) {
+			return mGoodreadsApi.getIsbnToId("0441172717");
+		}
+
+		@Override
+		protected void onPostExecute(String id) {
+			showProgressBar(false);
+
+			if (StringUtils.isNotEmpty(id)) {
+				appendDebugInfo("Book ID: " + id);
+			}
+		}
+	}
+
+	public void appendDebugInfo(String str) {
+		mDebugTextView.setText(mDebugTextView.getText() + "\n" + str);
 	}
 
 }
