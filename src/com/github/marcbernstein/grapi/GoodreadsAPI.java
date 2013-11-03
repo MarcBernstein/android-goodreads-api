@@ -40,7 +40,7 @@ import com.github.marcbernstein.grapi.xml.objects.Author;
 import com.github.marcbernstein.grapi.xml.responses.AuthUserResponse;
 import com.github.marcbernstein.grapi.xml.responses.AuthorResponse;
 
-public class GoodreadsAPI {
+public class GoodreadsAPI implements AuthorizeListener {
 
 	private static final String KEY = "key";
 
@@ -71,6 +71,8 @@ public class GoodreadsAPI {
 	private boolean mIsLoggedIn;
 
 	private ApiEventListener mListener;
+
+	private OAuthLoginCallback mOAuthLoginCallback;
 
 	public static enum OAuthLoginDialogType {
 		FULLSCREEN, DIALOG
@@ -132,7 +134,8 @@ public class GoodreadsAPI {
 	}
 
 	public void login(OAuthLoginCallback callback) {
-		new RetrieveRequestTokenTask(callback).execute();
+		mOAuthLoginCallback = callback;
+		new RetrieveRequestTokenTask().execute();
 	}
 
 	private String request(String service) throws Exception {
@@ -196,13 +199,16 @@ public class GoodreadsAPI {
 		return output;
 	}
 
+	@Override
+	public void onAuthorized(String token) {
+		new RetrieveAccessTokenTask().execute();
+	}
+
+	@Override
+	public void onAuthorizeError() {
+	}
+
 	private class RetrieveRequestTokenTask extends AsyncTask<Void, Void, String> {
-
-		private OAuthLoginCallback mCallback;
-
-		public RetrieveRequestTokenTask(OAuthLoginCallback callback) {
-			mCallback = callback;
-		}
 
 		@Override
 		protected String doInBackground(Void... params) {
@@ -211,8 +217,8 @@ public class GoodreadsAPI {
 				authorizeUrl = mProvider.retrieveRequestToken(mConsumer, mOAuthCallbackUrl);
 			} catch (Exception e) {
 				Log.e(TAG, "Exception while retrieving request token.", e);
-				if (mCallback != null) {
-					mCallback.onError(e);
+				if (mOAuthLoginCallback != null) {
+					mOAuthLoginCallback.onError(e);
 				}
 			}
 			return authorizeUrl;
@@ -222,14 +228,7 @@ public class GoodreadsAPI {
 		protected void onPostExecute(String authorizeUrl) {
 			if (authorizeUrl != null) {
 
-				OAuthDialogFragment f = OAuthDialogFragment.newInstance(authorizeUrl, mOAuthCallbackUrl,
-						new AuthorizeListener() {
-
-							@Override
-							public void onAuthorized(String verifier) {
-								new RetrieveAccessTokenTask(mCallback).execute(verifier);
-							}
-						});
+				OAuthDialogFragment f = OAuthDialogFragment.newInstance(authorizeUrl, mOAuthCallbackUrl);
 
 				if (mOAuthLoginDialogType == OAuthLoginDialogType.FULLSCREEN) {
 					FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
@@ -246,12 +245,6 @@ public class GoodreadsAPI {
 
 	private class RetrieveAccessTokenTask extends AsyncTask<String, Void, Boolean> {
 
-		private OAuthLoginCallback mCallback;
-
-		public RetrieveAccessTokenTask(OAuthLoginCallback callback) {
-			mCallback = callback;
-		}
-
 		@Override
 		protected Boolean doInBackground(String... params) {
 			boolean success = false;
@@ -260,8 +253,8 @@ public class GoodreadsAPI {
 				success = true;
 			} catch (Exception e) {
 				Log.e(TAG, "Exception while retrieving access token.", e);
-				if (mCallback != null) {
-					mCallback.onError(e);
+				if (mOAuthLoginCallback != null) {
+					mOAuthLoginCallback.onError(e);
 				}
 				success = false;
 			}
@@ -281,8 +274,8 @@ public class GoodreadsAPI {
 				saveAuthInformation(mToken, mTokenSecret);
 				clearRequestInformation();
 
-				if (mCallback != null) {
-					mCallback.onSuccess();
+				if (mOAuthLoginCallback != null) {
+					mOAuthLoginCallback.onSuccess();
 				}
 			}
 		}

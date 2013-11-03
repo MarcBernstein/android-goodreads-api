@@ -1,6 +1,7 @@
 package com.github.marcbernstein.grapi.auth;
 
 import oauth.signpost.OAuth;
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.github.marcbernstein.grapi.utils.StringUtils;
 
 /**
  * See this link for more info: http://developer.android.com/reference/android/app/DialogFragment.html#DialogOrEmbed <BR>
@@ -41,18 +44,29 @@ public class OAuthDialogFragment extends DialogFragment {
 	private AuthorizeListener mAuthorizeListener;
 
 	public interface AuthorizeListener {
-		void onAuthorized(String verifier);
+		void onAuthorized(String token);
+
+		void onAuthorizeError();
 	}
 
-	public static OAuthDialogFragment newInstance(String authorizeUrl, String oAuthCallbackUrl,
-			AuthorizeListener authorizeListener) {
+	public static OAuthDialogFragment newInstance(String authorizeUrl, String oAuthCallbackUrl) {
 		OAuthDialogFragment ret = new OAuthDialogFragment();
 
 		ret.mAuthorizeUrl = authorizeUrl;
 		ret.mOAuthCallbackUrl = oAuthCallbackUrl;
-		ret.mAuthorizeListener = authorizeListener;
 
 		return ret;
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (activity instanceof AuthorizeListener) {
+			mAuthorizeListener = (AuthorizeListener) activity;
+		} else {
+			throw new IllegalStateException("Activity attaching ");
+		}
 	}
 
 	@Override
@@ -66,10 +80,14 @@ public class OAuthDialogFragment extends DialogFragment {
 				if (url.contains(mOAuthCallbackUrl)) {
 
 					Uri uri = Uri.parse(url);
-					String verifier = uri.getQueryParameter(OAuth.OAUTH_VERIFIER);
+					String token = uri.getQueryParameter(OAuth.OAUTH_TOKEN);
 
 					if (mAuthorizeListener != null) {
-						mAuthorizeListener.onAuthorized(verifier);
+						if (StringUtils.isNotEmpty(token)) {
+							mAuthorizeListener.onAuthorized(token);
+						} else {
+							mAuthorizeListener.onAuthorizeError();
+						}
 					}
 
 					dismiss();
