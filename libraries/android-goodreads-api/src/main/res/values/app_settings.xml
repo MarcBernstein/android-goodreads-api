@@ -1,0 +1,7 @@
+<resources>
+
+	<string name="oauth_developer_key">REPLACE</string>
+	<string name="oauth_developer_secret">REPLACE</string>
+	<string name="oauth_callback_url">REPLACE</string>
+
+</resources>
