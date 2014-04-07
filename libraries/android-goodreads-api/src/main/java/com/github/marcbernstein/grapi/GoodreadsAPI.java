@@ -122,7 +122,11 @@ public class GoodreadsAPI implements AuthorizeListener {
 		}
 	}
 
-	public void setOAuthLoginDialogType(OAuthLoginDialogType oAuthLoginDialogType) {
+    public CommonsHttpOAuthConsumer getConsumer() {
+        return mConsumer;
+    }
+
+    public void setOAuthLoginDialogType(OAuthLoginDialogType oAuthLoginDialogType) {
 		mOAuthLoginDialogType = oAuthLoginDialogType;
 	}
 

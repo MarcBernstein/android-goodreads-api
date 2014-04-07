@@ -13,12 +13,14 @@ import com.github.marcbernstein.grapi.GoodreadsAPI.ApiEventListener;
 import com.github.marcbernstein.grapi.GoodreadsAPI.OAuthLoginCallback;
 import com.github.marcbernstein.grapi.auth.OAuthDialogFragment.AuthorizeListener;
 import com.github.marcbernstein.grapi.auth.OAuthLoginDialogType;
+import com.github.marcbernstein.grapi.auth.SigningClient;
 import com.github.marcbernstein.grapi.utils.StringUtils;
 import com.github.marcbernstein.grapi.xml.objects.AuthUser;
 import com.github.marcbernstein.grapi.xml.objects.Author;
 import com.github.marcbernstein.grapi.xml.responses.AuthorResponse;
 
 import retrofit.RestAdapter;
+import retrofit.android.AndroidApacheClient;
 import retrofit.android.AndroidLog;
 import retrofit.converter.SimpleXMLConverter;
 import retrofit.http.GET;
@@ -158,6 +160,7 @@ public class MainActivity extends Activity implements AuthorizeListener {
             RestAdapter restAdapter = new RestAdapter.Builder()
                     .setEndpoint("https://www.goodreads.com")
                     .setConverter(new SimpleXMLConverter())
+                    .setClient(new SigningClient(new AndroidApacheClient(), mGoodreadsApi))
                     .setLogLevel(RestAdapter.LogLevel.BASIC)
                     .setLog(new AndroidLog("FetchAuthorInfoTask"))
                     .build();
